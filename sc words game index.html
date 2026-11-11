@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>幼兒中文 · 看字選圖</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fde9e0 0%, #fce3d4 100%);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', 'PingFang', 'Microsoft YaHei', sans-serif;
+      padding: 8px;
+      touch-action: manipulation;
+    }
+
+    .game-container {
+      max-width: 700px;
+      width: 100%;
+      background: #fff9f0;
+      border-radius: 64px 64px 48px 48px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1), 0 8px 0 #e6d7c2;
+      padding: 22px 18px 30px;
+      border: 4px solid #ffe6c7;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+    }
+
+    .score-badge {
+      background: #ffe28c;
+      border-radius: 100px;
+      padding: 8px 22px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #a5512b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 5px 0 #ddb56b;
+      border: 2px solid #ffcd7a;
+    }
+
+    .speaker-btn {
+      background: #c7e9c0;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 0 #9bbf8f;
+      cursor: pointer;
+      transition: all 0.05s ease;
+      border: 2px solid #b1d8a8;
+      color: #2d5a1e;
+    }
+
+    .speaker-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #9bbf8f;
+    }
+
+    .character-display {
+      text-align: center;
+      font-size: 6rem;
+      line-height: 1.2;
+      font-weight: 900;
+      color: #3c2a1e;
+      background: #ffffffd0;
+      padding: 10px 15px;
+      border-radius: 90px;
+      margin: 5px 0 5px;
+      letter-spacing: 4px;
+      text-shadow: 3px 3px 0 #f3d5b5;
+      border: 3px dashed #e9c9a9;
+      word-break: break-word;
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .character-display span {
+      font-size: 5rem;
+    }
+
+    .picture-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 6px 0 6px;
+      padding: 0 4px;
+    }
+
+    .picture-choice {
+      background: #fef7e9;
+      border-radius: 32px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 0 #d9c2a8, 0 8px 18px rgba(0, 0, 0, 0.1);
+      border: 3px solid #ffe0b9;
+      transition: all 0.1s ease;
+      cursor: pointer;
+      padding: 6px;
+      font-size: 2.8rem;
+      line-height: 1.2;
+    }
+
+    .picture-choice:active {
+      transform: translateY(5px);
+      box-shadow: 0 5px 0 #d9c2a8, 0 8px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .picture-choice.correct-glow {
+      background: #d4f0c4;
+      border: 4px solid #92c77e;
+      box-shadow: 0 0 0 6px #e4ffd6, 0 10px 0 #b3d6a2;
+      transform: scale(1.02);
+    }
+
+    .picture-choice.wrong-glow {
+      background: #ffd6d6;
+      border: 4px solid #e68a8a;
+      box-shadow: 0 0 0 6px #ffe2e2, 0 10px 0 #d69c9c;
+    }
+
+    .picture-emoji {
+      font-size: 3.2rem;
+      filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.1));
+      margin-bottom: 4px;
+    }
+
+    .picture-label {
+      font-size: 0.9rem;
+      color: #735e4b;
+      font-weight: bold;
+      text-align: center;
+      background: #fff0e0;
+      padding: 3px 10px;
+      border-radius: 60px;
+      white-space: nowrap;
+    }
+
+    .feedback-area {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #b46f3c;
+      min-height: 2.6rem;
+      padding: 4px;
+      transition: all 0.2s;
+    }
+
+    .next-btn {
+      background: #ffb882;
+      border: none;
+      border-radius: 60px;
+      padding: 16px 20px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #4a2e1b;
+      box-shadow: 0 8px 0 #d18f56;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      border: 2px solid #ffdbb5;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .next-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 #d18f56;
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      transform: translateY(0);
+      box-shadow: 0 8px 0 #d18f56;
+      pointer-events: none;
+    }
+
+    .emoji-large {
+      font-size: 3rem;
+    }
+
+    /* small adjustments */
+    @media (max-width: 450px) {
+      .character-display {
+        font-size: 5rem;
+        min-height: 130px;
+      }
+      .character-display span {
+        font-size: 4.2rem;
+      }
+      .picture-choice {
+        font-size: 2.2rem;
+        border-radius: 26px;
+      }
+      .picture-emoji {
+        font-size: 2.8rem;
+      }
+      .picture-label {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+      }
+      .score-badge {
+        font-size: 1.5rem;
+        padding: 6px 16px;
+      }
+      .speaker-btn {
+        font-size: 1.6rem;
+        padding: 10px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <!-- Header: score + speaker -->
+  <div class="header">
+    <div class="score-badge">
+      <span>⭐</span> <span id="scoreValue">0</span>
+    </div>
+    <button class="speaker-btn" id="speakBtn" aria-label="播放讀音">🔊</button>
+  </div>
+
+  <!-- big Chinese character -->
+  <div class="character-display" id="characterDisplay">
+    <span id="charText">人</span>
+  </div>
+
+  <!-- picture choices (3) -->
+  <div class="picture-grid" id="pictureGrid">
+    <!-- dynamically filled -->
+  </div>
+
+  <!-- feedback message -->
+  <div class="feedback-area" id="feedbackMessage"></div>
+
+  <!-- next button -->
+  <button class="next-btn" id="nextBtn">下一題 ▶</button>
+</div>
+
+<script>
+  // --------------------------------------------------------------
+  // 1. 單詞庫 (character + audio + correct picture emoji + label)
+  //    每個條目包含：字/詞, 讀音(用於語音), 正確圖片(emoji + 文字標籤)
+  // --------------------------------------------------------------
+  const wordBank = [
+    // 身體與人
+    { word: '人', audio: '人', correctEmoji: '🧑', correctLabel: '人' },
+    { word: '耳', audio: '耳', correctEmoji: '👂', correctLabel: '耳' },
+    { word: '耳朵', audio: '耳朵', correctEmoji: '👂', correctLabel: '耳朵' },
+    { word: '口', audio: '口', correctEmoji: '👄', correctLabel: '口' },
+    { word: '鼻', audio: '鼻', correctEmoji: '👃', correctLabel: '鼻' },
+    { word: '鼻子', audio: '鼻子', correctEmoji: '👃', correctLabel: '鼻子' },
+    { word: '眼', audio: '眼', correctEmoji: '👁️', correctLabel: '眼' },
+    { word: '眼睛', audio: '眼睛', correctEmoji: '👀', correctLabel: '眼睛' },
+    { word: '手', audio: '手', correctEmoji: '✋', correctLabel: '手' },
+    { word: '小手', audio: '小手', correctEmoji: '🤚', correctLabel: '小手' },
+    { word: '女', audio: '女', correctEmoji: '👧', correctLabel: '女' },
+    { word: '女生', audio: '女生', correctEmoji: '👩', correctLabel: '女生' },
+    { word: '男', audio: '男', correctEmoji: '👦', correctLabel: '男' },
+    { word: '男生', audio: '男生', correctEmoji: '👨', correctLabel: '男生' },
+    { word: '大', audio: '大', correctEmoji: '🔵', correctLabel: '大' },          // 用大圓代表大
+    { word: '大人', audio: '大人', correctEmoji: '🧑‍🦱', correctLabel: '大人' },
+    { word: '小', audio: '小', correctEmoji: '🔹', correctLabel: '小' },          // 小點代表小
+    { word: '小朋友', audio: '小朋友', correctEmoji: '🧒', correctLabel: '小朋友' },
+
+    // 家庭與家居
+    { word: '爸', audio: '爸', correctEmoji: '👨', correctLabel: '爸' },
+    { word: '爸爸', audio: '爸爸', correctEmoji: '👨‍👦', correctLabel: '爸爸' },
+    { word: '媽', audio: '媽', correctEmoji: '👩', correctLabel: '媽' },
+    { word: '媽媽', audio: '媽媽', correctEmoji: '👩‍👧', correctLabel: '媽媽' },
+    { word: '屋', audio: '屋', correctEmoji: '🏠', correctLabel: '屋' },
+    { word: '木屋', audio: '木屋', correctEmoji: '🛖', correctLabel: '木屋' },
+    { word: '門', audio: '門', correctEmoji: '🚪', correctLabel: '門' },
+    { word: '木門', audio: '木門', correctEmoji: '🚪🪵', correctLabel: '木門' },
+    { word: '電', audio: '電', correctEmoji: '⚡', correctLabel: '電' },
+    { word: '電話', audio: '電話', correctEmoji: '📞', correctLabel: '電話' },
+    { word: '燈', audio: '燈', correctEmoji: '💡', correctLabel: '燈' },
+    { word: '電燈', audio: '電燈', correctEmoji: '🔦', correctLabel: '電燈' },
+    { word: '牙', audio: '牙', correctEmoji: '🦷', correctLabel: '牙' },
+    { word: '刷牙', audio: '刷牙', correctEmoji: '🪥', correctLabel: '刷牙' },
+    { word: '刀', audio: '刀', correctEmoji: '🔪', correctLabel: '刀' },
+    { word: '小刀', audio: '小刀', correctEmoji: '🔪', correctLabel: '小刀' },
+
+    // 自然與日常
+    { word: '上', audio: '上', correctEmoji: '⬆️', correctLabel: '上' },
+    { word: '上課', audio: '上課', correctEmoji: '📚', correctLabel: '上課' },
+    { word: '下', audio: '下', correctEmoji: '⬇️', correctLabel: '下' },
+    { word: '下雨', audio: '下雨', correctEmoji: '🌧️', correctLabel: '下雨' },
+    { word: '田', audio: '田', correctEmoji: '🌾', correctLabel: '田' },
+    { word: '田地', audio: '田地', correctEmoji: '🏞️', correctLabel: '田地' },
+    { word: '米', audio: '米', correctEmoji: '🍚', correctLabel: '米' },
+    { word: '白米', audio: '白米', correctEmoji: '🍚', correctLabel: '白米' },
+    { word: '風', audio: '風', correctEmoji: '💨', correctLabel: '風' },
+    { word: '風車', audio: '風車', correctEmoji: '🌬️', correctLabel: '風車' },
+    { word: '冬', audio: '冬', correctEmoji: '❄️', correctLabel: '冬' },
+    { word: '冬天', audio: '冬天', correctEmoji: '⛄', correctLabel: '冬天' },
+    { word: '玩', audio: '玩', correctEmoji: '🧸', correctLabel: '玩' },
+    { word: '玩具', audio: '玩具', correctEmoji: '🪀', correctLabel: '玩具' },
+    { word: '樹', audio: '樹', correctEmoji: '🌳', correctLabel: '樹' },
+    { word: '大樹', audio: '大樹', correctEmoji: '🌲', correctLabel: '大樹' },
+    { word: '木', audio: '木', correctEmoji: '🪵', correctLabel: '木' },
+    { word: '樹木', audio: '樹木', correctEmoji: '🌳🌲', correctLabel: '樹木' },
+    { word: '山', audio: '山', correctEmoji: '⛰️', correctLabel: '山' },
+    { word: '山火', audio: '山火', correctEmoji: '🔥⛰️', correctLabel: '山火' },
+    { word: '火', audio: '火', correctEmoji: '🔥', correctLabel: '火' },
+    { word: '火山', audio: '火山', correctEmoji: '🌋', correctLabel: '火山' },
+
+    // 數字與其他
+    { word: '一', audio: '一', correctEmoji: '1️⃣', correctLabel: '一' },
+    { word: '二', audio: '二', correctEmoji: '2️⃣', correctLabel: '二' },
+    { word: '三', audio: '三', correctEmoji: '3️⃣', correctLabel: '三' },
+    { word: '四', audio: '四', correctEmoji: '4️⃣', correctLabel: '四' },
+    { word: '五', audio: '五', correctEmoji: '5️⃣', correctLabel: '五' },
+    { word: '六', audio: '六', correctEmoji: '6️⃣', correctLabel: '六' },
+    { word: '七', audio: '七', correctEmoji: '7️⃣', correctLabel: '七' },
+    { word: '八', audio: '八', correctEmoji: '8️⃣', correctLabel: '八' },
+    { word: '九', audio: '九', correctEmoji: '9️⃣', correctLabel: '九' },
+    { word: '十', audio: '十', correctEmoji: '🔟', correctLabel: '十' },
+    { word: '同學', audio: '同學', correctEmoji: '🧑‍🤝‍🧑', correctLabel: '同學' },
+    { word: '麵包', audio: '麵包', correctEmoji: '🍞', correctLabel: '麵包' },
+    { word: '上學', audio: '上學', correctEmoji: '🎒', correctLabel: '上學' },
+    { word: '地球', audio: '地球', correctEmoji: '🌍', correctLabel: '地球' },
+    { word: '老師', audio: '老師', correctEmoji: '🧑‍🏫', correctLabel: '老師' },
+    { word: '新年', audio: '新年', correctEmoji: '🧧', correctLabel: '新年' },
+    { word: '弟弟', audio: '弟弟', correctEmoji: '👦', correctLabel: '弟弟' },
+    { word: '插座', audio: '插座', correctEmoji: '🔌', correctLabel: '插座' },
+    { word: '醫生', audio: '醫生', correctEmoji: '👨‍⚕️', correctLabel: '醫生' },
+    { word: '消防員', audio: '消防員', correctEmoji: '👨‍🚒', correctLabel: '消防員' },
+    { word: '警察', audio: '警察', correctEmoji: '👮', correctLabel: '警察' },
+    { word: '司機', audio: '司機', correctEmoji: '🚗', correctLabel: '司機' },
+    { word: '手套', audio: '手套', correctEmoji: '🧤', correctLabel: '手套' },
+    { word: '聖誕樹', audio: '聖誕樹', correctEmoji: '🎄', correctLabel: '聖誕樹' },
+  ];
+
+  // 用於乾擾項的額外圖標（不與當前單詞重複）
+  const extraIcons = [
+    { emoji: '🐶', label: '狗' }, { emoji: '🐱', label: '貓' }, { emoji: '🐟', label: '魚' },
+    { emoji: '🌞', label: '太陽' }, { emoji: '🌙', label: '月亮' }, { emoji: '⭐', label: '星星' },
+    { emoji: '🍎', label: '蘋果' }, { emoji: '🍌', label: '香蕉' }, { emoji: '🚗', label: '車' },
+    { emoji: '✈️', label: '飛機' }, { emoji: '📘', label: '書' }, { emoji: '🎈', label: '氣球' },
+    { emoji: '🧸', label: '熊' }, { emoji: '🍦', label: '冰淇淋' }, { emoji: '⚽', label: '球' },
+    { emoji: '🐸', label: '青蛙' }, { emoji: '🌺', label: '花' }, { emoji: '🍇', label: '葡萄' },
+    { emoji: '🚲', label: '單車' }, { emoji: '🎵', label: '音樂' }
+  ];
+
+  // --------------------------------------------------------------
+  // 2. 遊戲狀態
+  // --------------------------------------------------------------
+  let currentScore = 0;
+  let currentWordObj = null;     // 當前單詞對象
+  let currentChoices = [];       // 當前三個選項（含emoji, label, isCorrect）
+  let answered = false;         // 是否已答題（防止重複點擊）
+  let canSpeak = true;
+
+  // DOM 元素
+  const charTextEl = document.getElementById('charText');
+  const pictureGrid = document.getElementById('pictureGrid');
+  const scoreValueEl = document.getElementById('scoreValue');
+  const feedbackEl = document.getElementById('feedbackMessage');
+  const nextBtn = document.getElementById('nextBtn');
+  const speakBtn = document.getElementById('speakBtn');
+
+  // --------------------------------------------------------------
+  // 3. 語音合成 (使用 Web Speech API)
+  // --------------------------------------------------------------
+  function speakWord(text) {
+    if (!('speechSynthesis' in window)) return;
+    // 取消任何正在播放的語音
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-HK';       // 粵語/普通話皆可，優先粵語
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 1;
+
+    // 嘗試選擇中文語音
+    const voices = window.speechSynthesis.getVoices();
+    const chineseVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('yue'));
+    if (chineseVoice) utterance.voice = chineseVoice;
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // 確保語音列表加載（部分瀏覽器需要異步）
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  // 點擊揚聲器按鈕
+  speakBtn.addEventListener('click', () => {
+    if (currentWordObj && canSpeak) {
+      speakWord(currentWordObj.audio);
+    }
+  });
+
+  // --------------------------------------------------------------
+  // 4. 工具：從數組中隨機取一個元素
+  // --------------------------------------------------------------
+  function randomItem(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // --------------------------------------------------------------
+  // 5. 生成新題目
+  // --------------------------------------------------------------
+  function generateQuestion() {
+    answered = false;
+    nextBtn.disabled = true;
+    feedbackEl.textContent = '';
+
+    // 隨機選一個單詞
+    const wordEntry = randomItem(wordBank);
+    currentWordObj = wordEntry;
+
+    // 顯示大字
+    charTextEl.textContent = wordEntry.word;
+
+    // 準備正確選項
+    const correctOption = {
+      emoji: wordEntry.correctEmoji,
+      label: wordEntry.correctLabel,
+      isCorrect: true
+    };
+
+    // 準備兩個干擾項：從 extraIcons 和 wordBank 中挑選不同於當前正確的
+    const distractorPool = [];
+
+    // 從 wordBank 中選取非當前的詞 (避免重複)
+    wordBank.forEach(w => {
+      if (w.word !== wordEntry.word) {
+        distractorPool.push({ emoji: w.correctEmoji, label: w.correctLabel });
+      }
+    });
+    // 加入額外圖標
+    extraIcons.forEach(i => distractorPool.push({ emoji: i.emoji, label: i.label }));
+
+    // 過濾掉與正確選項完全相同的（避免出現兩個一樣的）
+    const filteredDistractors = distractorPool.filter(
+      d => d.emoji !== correctOption.emoji || d.label !== correctOption.label
+    );
+
+    // 隨機取兩個干擾項
+    const shuffled = [...filteredDistractors].sort(() => Math.random() - 0.5);
+    const distractor1 = shuffled[0] || { emoji: '❓', label: '？' };
+    const distractor2 = shuffled[1] || { emoji: '❓', label: '？' };
+
+    // 組合三個選項
+    currentChoices = [
+      correctOption,
+      { emoji: distractor1.emoji, label: distractor1.label, isCorrect: false },
+      { emoji: distractor2.emoji, label: distractor2.label, isCorrect: false }
+    ];
+
+    // 打亂順序
+    currentChoices = currentChoices.sort(() => Math.random() - 0.5);
+
+    // 渲染圖片選項
+    renderPictureChoices();
+
+    // 自動播放語音 (延遲一點，避免干擾)
+    setTimeout(() => {
+      if (currentWordObj) speakWord(currentWordObj.audio);
+    }, 300);
+  }
+
+  // --------------------------------------------------------------
+  // 6. 渲染三個圖片按鈕
+  // --------------------------------------------------------------
+  function renderPictureChoices() {
+    pictureGrid.innerHTML = '';
+    currentChoices.forEach((choice, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'picture-choice';
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('tabindex', '0');
+      btn.dataset.index = index;
+
+      // emoji 部分
+      const emojiSpan = document.createElement('div');
+      emojiSpan.className = 'picture-emoji';
+      emojiSpan.textContent = choice.emoji;
+
+      // 文字標籤 (小字)
+      const labelSpan = document.createElement('div');
+      labelSpan.className = 'picture-label';
+      labelSpan.textContent = choice.label;
+
+      btn.appendChild(emojiSpan);
+      btn.appendChild(labelSpan);
+
+      // 點擊事件
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleChoiceClick(choice, btn);
+      });
+
+      // 觸控友好
+      btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();  // 防止雙擊縮放
+      }, { passive: false });
+
+      pictureGrid.appendChild(btn);
+    });
+  }
+
+  // --------------------------------------------------------------
+  // 7. 處理選擇
+  // --------------------------------------------------------------
+  function handleChoiceClick(choice, btnElement) {
+    if (answered) return;        // 已答題，忽略
+
+    // 播放該選項的語音？不，只播放單詞本身；但點擊時不額外發音
+
+    if (choice.isCorrect) {
+      // 正確！
+      answered = true;
+      currentScore += 10;
+      scoreValueEl.textContent = currentScore;
+
+      // 視覺反饋
+      btnElement.classList.add('correct-glow');
+      feedbackEl.textContent = '✅ 好棒！ +10';
+      feedbackEl.style.color = '#3b7a3b';
+
+      // 禁用其他按鈕的點擊（但保留樣式）
+      disableAllChoices();
+
+      // 啟用下一題按鈕
+      nextBtn.disabled = false;
+
+      // 播放正確音效 (再次朗讀單詞，加強記憶)
+      speakWord(currentWordObj.audio);
+
+      // 也可以播放一點慶祝音效（語音後）
+      // 這裡不額外處理
+    } else {
+      // 錯誤
+      btnElement.classList.add('wrong-glow');
+      feedbackEl.textContent = '😊 再試一次吧';
+      feedbackEl.style.color = '#b34e4e';
+
+      // 短暫震動/閃爍效果
+      setTimeout(() => {
+        btnElement.classList.remove('wrong-glow');
+      }, 500);
+
+      // 播放正確單詞的讀音提示(可選)
+      speakWord(currentWordObj.audio);
+    }
+  }
+
+  // 禁用所有圖片按鈕點擊（通過樣式+事件阻止，但這裡簡化：利用 answered 標記）
+  // 我們可以添加 pointer-events: none 到網格，但更簡單：在點擊時檢查 answered 已經返回
+  // 但為了避免用戶再次點擊，我們可以給按鈕加上樣式提示，但非必須。
+
+  function disableAllChoices() {
+    // 不需要真正禁用，因為 answered 已為 true，再點擊也不會觸發邏輯
+  }
+
+  // --------------------------------------------------------------
+  // 8. 下一題
+  // --------------------------------------------------------------
+  function nextQuestion() {
+    // 重置
+    answered = false;
+    nextBtn.disabled = true;
+    // 移除所有光暈
+    document.querySelectorAll('.picture-choice').forEach(el => {
+      el.classList.remove('correct-glow', 'wrong-glow');
+    });
+    // 生成新題目
+    generateQuestion();
+  }
+
+  // --------------------------------------------------------------
+  // 9. 初始化 & 事件綁定
+  // --------------------------------------------------------------
+  nextBtn.addEventListener('click', nextQuestion);
+
+  // 啟動遊戲
+  window.addEventListener('load', () => {
+    // 初始化語音 (某些瀏覽器需要加載voices)
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+    }
+    // 重置分數
+    currentScore = 0;
+    scoreValueEl.textContent = '0';
+    generateQuestion();
+  });
+
+  // 確保在移動端也能正常播放語音（需用戶交互後才允許）
+  // 按鈕點擊已經是用戶交互，所以OK。
+  // 第一次自動播放可能被瀏覽器阻止，但用戶點擊🔊即可。
+
+  // 防止雙擊頁面縮放
+  document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+
+  // 如果語音在自動播放時失敗，也沒關係，用戶可以點🔊
+
+  // 處理頁面隱藏時停止語音
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  });
+</script>
+</body>
+</html>
