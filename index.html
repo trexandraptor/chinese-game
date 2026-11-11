@@ -194,12 +194,12 @@
       box-shadow: 0 3px 0 #d18f56;
     }
 
-    .next-btn:disabled {
-      opacity: 0.5;
-      transform: translateY(0);
-      box-shadow: 0 8px 0 #d18f56;
-      pointer-events: none;
-    }
+   .next-btn:disabled {
+  opacity: 0.5;
+  transform: translateY(0);
+  box-shadow: 0 8px 0 #d18f56;
+  /* pointer-events removed — the disabled attribute already blocks clicks */
+}
 
     .emoji-large {
       font-size: 3rem;
